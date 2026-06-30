@@ -1,4 +1,5 @@
 using CafeManagementSystem.Data;
+using CafeManagementSystem.Hubs;
 using CafeManagementSystem.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -46,5 +47,7 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.MapRazorPages();
+
+app.MapHub<KitchenHub>("/hubs/kitchen");
 
 app.Run();
