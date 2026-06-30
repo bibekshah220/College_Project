@@ -1,50 +1,169 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - CafeManagementSystem</title>
-    <script type="importmap"></script>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <title>@ViewData["Title"] — Brew & Manage</title>
+    <meta name="description" content="Professional Cafe Management System" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/CafeManagementSystem.styles.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">CafeManagementSystem</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                    </ul>
-                </div>
+
+@{
+    bool isAuthPage = (ViewData["AuthPage"] as bool?) == true;
+    var user = User.Identity?.Name ?? "";
+    var initials = user.Length > 0 ? user.Substring(0, Math.Min(2, user.Length)).ToUpper() : "A";
+    var isAdmin = User.IsInRole("Admin");
+}
+
+@if (isAuthPage)
+{
+    @RenderBody()
+}
+else
+{
+<div class="app-wrapper">
+
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <div class="brand-icon">☕</div>
+            <div class="brand-text">
+                <span class="brand-name">Brew &amp; Manage</span>
+                <span class="brand-sub">Cafe System</span>
             </div>
+        </div>
+
+        <nav class="sidebar-nav">
+
+            <span class="nav-section-label">Main</span>
+
+            <a href="/" class="nav-item @(ViewData["ActivePage"]?.ToString() == "Dashboard" ? "active" : "")">
+                <span class="nav-icon"><i class="fa-solid fa-gauge-high"></i></span>
+                Dashboard
+            </a>
+
+            <span class="nav-section-label">Operations</span>
+
+            <a href="/Menu" class="nav-item @(ViewData["ActivePage"]?.ToString() == "Menu" ? "active" : "")">
+                <span class="nav-icon"><i class="fa-solid fa-utensils"></i></span>
+                Menu Items
+            </a>
+
+            <a href="/Order" class="nav-item @(ViewData["ActivePage"]?.ToString() == "Order" ? "active" : "")">
+                <span class="nav-icon"><i class="fa-solid fa-receipt"></i></span>
+                Orders
+                <span class="nav-badge" id="pending-count">0</span>
+            </a>
+
+            <a href="/Table" class="nav-item @(ViewData["ActivePage"]?.ToString() == "Table" ? "active" : "")">
+                <span class="nav-icon"><i class="fa-solid fa-chair"></i></span>
+                Tables
+            </a>
+
+            <a href="/Billing" class="nav-item @(ViewData["ActivePage"]?.ToString() == "Billing" ? "active" : "")">
+                <span class="nav-icon"><i class="fa-solid fa-file-invoice-dollar"></i></span>
+                Billing
+            </a>
+
+            <span class="nav-section-label">Management</span>
+
+            <a href="/Inventory" class="nav-item @(ViewData["ActivePage"]?.ToString() == "Inventory" ? "active" : "")">
+                <span class="nav-icon"><i class="fa-solid fa-boxes-stacked"></i></span>
+                Inventory
+            </a>
+
+            @if (isAdmin)
+            {
+            <a href="/Account" class="nav-item @(ViewData["ActivePage"]?.ToString() == "Account" ? "active" : "")">
+                <span class="nav-icon"><i class="fa-solid fa-users-gear"></i></span>
+                Staff
+            </a>
+            }
+
         </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
+
+        <div class="sidebar-footer">
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+            <div class="user-card">
+                <div class="user-avatar">@initials</div>
+                <div class="user-info">
+                    <div class="user-name">@user</div>
+                    <div class="user-role">@(isAdmin ? "Admin" : "Staff")</div>
+                </div>
+                <a asp-controller="Account" asp-action="LogoutGet" title="Logout"
+                   style="color:var(--text-muted);font-size:0.85rem;padding:4px;">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                </a>
+            </div>
+            }
+            else
+            {
+            <a href="/Account/Login" class="btn btn-primary btn-block btn-sm">
+                <i class="fa-solid fa-right-to-bracket"></i> Sign In
+            </a>
+            }
+        </div>
+    </aside>
+
+    <!-- ===== MAIN AREA ===== -->
+    <div class="main-area">
+
+        <!-- TOPBAR -->
+        <header class="topbar">
+            <span class="topbar-title">@(ViewData["Title"] ?? "Dashboard")</span>
+
+            <div class="topbar-search">
+                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                <input type="text" placeholder="Search..." id="globalSearch" />
+            </div>
+
+            <div class="topbar-actions">
+                <button class="topbar-btn" title="Notifications" id="notifBtn">
+                    <i class="fa-solid fa-bell"></i>
+                    <span class="notif-dot"></span>
+                </button>
+                <button class="topbar-btn" title="Theme">
+                    <i class="fa-solid fa-circle-half-stroke"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- PAGE CONTENT -->
+        <main class="page-content">
             @RenderBody()
         </main>
-    </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - CafeManagementSystem - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
-    </footer>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
-    @await RenderSectionAsync("Scripts", required: false)
+    </div>
+</div>
+}
+
+<!-- Scripts -->
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script src="~/js/site.js" asp-append-version="true"></script>
+
+<!-- Highlight active nav -->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const path = window.location.pathname.toLowerCase();
+        document.querySelectorAll('.nav-item').forEach(item => {
+            const href = item.getAttribute('href')?.toLowerCase();
+            if (href && href !== '/' && path.startsWith(href)) {
+                item.classList.add('active');
+            } else if (href === '/' && path === '/') {
+                item.classList.add('active');
+            }
+        });
+    });
+</script>
+
+@await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
