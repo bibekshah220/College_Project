@@ -1,0 +1,134 @@
+@model IEnumerable<CafeManagementSystem.Models.TableInfo>
+@{
+    ViewData["Title"] = "Table Management";
+    ViewData["ActivePage"] = "Table";
+}
+
+<div class="breadcrumb">
+    <i class="fa-solid fa-chair" style="font-size:0.7rem;"></i>
+    <span>Tables</span>
+</div>
+
+<div class="page-header fade-in-up">
+    <div class="page-header-left">
+        <h1>Manage Seating</h1>
+        <p>Monitor table availability and manage dining areas.</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-action="Create" class="btn btn-primary btn-sm">
+            <i class="fa-solid fa-plus"></i> Add Table
+        </a>
+    </div>
+</div>
+
+<!-- Table Status Overview Grid -->
+<div class="grid-4 mb-6 fade-in-up delay-1">
+    <div class="stat-card">
+        <div class="stat-icon" style="background:rgba(200,149,58,0.12); color:var(--primary);"><i class="fa-solid fa-chair"></i></div>
+        <div class="stat-body">
+            <div class="stat-value">@Model.Count()</div>
+            <div class="stat-label">Total Tables</div>
+        </div>
+    </div>
+    <div class="stat-card accent-green">
+        <div class="stat-icon"><i class="fa-solid fa-circle-check"></i></div>
+        <div class="stat-body">
+            <div class="stat-value">@Model.Count(t => t.Status == CafeManagementSystem.Models.TableStatus.Free)</div>
+            <div class="stat-label">Available</div>
+        </div>
+    </div>
+    <div class="stat-card accent-red">
+        <div class="stat-icon"><i class="fa-solid fa-user-group"></i></div>
+        <div class="stat-body">
+            <div class="stat-value">@Model.Count(t => t.Status == CafeManagementSystem.Models.TableStatus.Occupied)</div>
+            <div class="stat-label">Occupied</div>
+        </div>
+    </div>
+    <div class="stat-card accent-blue">
+        <div class="stat-icon"><i class="fa-regular fa-calendar-check"></i></div>
+        <div class="stat-body">
+            <div class="stat-value">@Model.Count(t => t.Status == CafeManagementSystem.Models.TableStatus.Reserved)</div>
+            <div class="stat-label">Reserved</div>
+        </div>
+    </div>
+</div>
+
+<div class="card fade-in-up delay-2">
+    <div class="card-header">
+        <div>
+            <div class="card-title">Cafe Floor Plan</div>
+            <div class="card-subtitle">Real-time table status</div>
+        </div>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div style="text-align:center;padding:40px;color:var(--text-muted);">
+            <i class="fa-solid fa-chair" style="font-size:3rem;display:block;margin-bottom:12px;opacity:0.3;"></i>
+            No tables configured. Click "Add Table" to map your cafe seating.
+        </div>
+    }
+    else
+    {
+        <div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(200px, 1fr));gap:20px;">
+            @foreach (var table in Model)
+            {
+                var bgClass = table.Status == CafeManagementSystem.Models.TableStatus.Free ? "rgba(76,175,130,0.05)" : 
+                              table.Status == CafeManagementSystem.Models.TableStatus.Occupied ? "rgba(224,92,92,0.05)" : "rgba(91,155,213,0.05)";
+                var borderClass = table.Status == CafeManagementSystem.Models.TableStatus.Free ? "rgba(76,175,130,0.3)" : 
+                                  table.Status == CafeManagementSystem.Models.TableStatus.Occupied ? "rgba(224,92,92,0.3)" : "rgba(91,155,213,0.3)";
+                
+                <div style="background:@bgClass;border:1px solid @borderClass;border-radius:var(--radius-lg);padding:20px;text-align:center;position:relative;transition:var(--transition);cursor:pointer;" class="table-box" onclick="toggleMenu('menu-@table.Id')">
+                    
+                    <div style="position:absolute;top:12px;right:12px;">
+                        <span class="status-dot @table.Status.ToString().ToLower()"></span>
+                    </div>
+
+                    <div style="font-size:2.5rem;margin-bottom:8px;opacity:0.8;">🪑</div>
+                    <div style="font-size:1.1rem;font-weight:700;color:var(--text-primary);">Table @table.TableNumber</div>
+                    <div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:12px;">Capacity: @table.Capacity persons</div>
+                    
+                    <div class="badge badge-@(table.Status == CafeManagementSystem.Models.TableStatus.Free ? "success" : table.Status == CafeManagementSystem.Models.TableStatus.Occupied ? "danger" : "info")" style="margin-bottom:8px;">
+                        @table.Status
+                    </div>
+
+                    @if(table.Orders.Any())
+                    {
+                        <div style="font-size:0.75rem;color:var(--text-secondary);background:rgba(0,0,0,0.2);padding:4px 8px;border-radius:4px;">
+                            Active Order: #@table.Orders.First().Id
+                        </div>
+                    }
+
+                    <!-- Action Menu Dropdown -->
+                    <div id="menu-@table.Id" style="display:none;position:absolute;top:100%;left:50%;transform:translateX(-50%);background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);box-shadow:var(--shadow-card);z-index:10;min-width:140px;padding:8px 0;margin-top:8px;">
+                        <form asp-action="UpdateStatus" method="post" style="display:flex;flex-direction:column;">
+                            <input type="hidden" name="id" value="@table.Id" />
+                            <button type="submit" name="status" value="Free" class="btn btn-outline btn-sm" style="border:none;border-radius:0;text-align:left;justify-content:flex-start;padding:8px 16px;"><i class="fa-solid fa-circle-check" style="color:var(--success);width:16px;"></i> Set Free</button>
+                            <button type="submit" name="status" value="Occupied" class="btn btn-outline btn-sm" style="border:none;border-radius:0;text-align:left;justify-content:flex-start;padding:8px 16px;"><i class="fa-solid fa-user-group" style="color:var(--danger);width:16px;"></i> Set Occupied</button>
+                            <button type="submit" name="status" value="Reserved" class="btn btn-outline btn-sm" style="border:none;border-radius:0;text-align:left;justify-content:flex-start;padding:8px 16px;"><i class="fa-regular fa-calendar-check" style="color:var(--info);width:16px;"></i> Set Reserved</button>
+                        </form>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@section Scripts {
+<script>
+    function toggleMenu(menuId) {
+        document.querySelectorAll('[id^="menu-"]').forEach(el => {
+            if (el.id !== menuId) el.style.display = 'none';
+        });
+        const menu = document.getElementById(menuId);
+        menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+    }
+
+    // Close menu when clicking outside
+    document.addEventListener('click', function(event) {
+        if (!event.target.closest('.table-box')) {
+            document.querySelectorAll('[id^="menu-"]').forEach(el => el.style.display = 'none');
+        }
+    });
+</script>
+}
