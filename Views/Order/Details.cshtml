@@ -1,0 +1,139 @@
+@model CafeManagementSystem.Models.Order
+@{
+    ViewData["Title"] = $"Order #{Model.Id}";
+    ViewData["ActivePage"] = "Order";
+    decimal orderTotal = Model.OrderItems.Sum(oi => oi.UnitPrice * oi.Quantity);
+}
+
+<div class="breadcrumb">
+    <a asp-action="Index"><i class="fa-solid fa-receipt"></i> Orders</a>
+    <span>/</span>
+    <span>Order #@Model.Id</span>
+</div>
+
+<div class="page-header fade-in-up">
+    <div class="page-header-left">
+        <h1>Order #@Model.Id</h1>
+        <p>
+            Table: <strong style="color:var(--text-primary);">@(Model.TableInfo?.TableNumber ?? "N/A")</strong> • 
+            Waiter: <strong>@(Model.Waiter?.FullName ?? "Unknown")</strong> • 
+            Time: @Model.CreatedAt.ToLocalTime().ToString("hh:mm tt")
+        </p>
+    </div>
+    <div class="d-flex gap-2 align-center">
+        <!-- Status Dropdown -->
+        <form asp-action="UpdateStatus" method="post" style="display:inline-block;">
+            <input type="hidden" name="id" value="@Model.Id" />
+            <select name="status" class="form-control" style="width:140px;padding:6px 12px;font-size:0.85rem;" onchange="this.form.submit()">
+                @foreach (var status in Enum.GetValues(typeof(CafeManagementSystem.Models.OrderStatus)))
+                {
+                    <option value="@status" selected="@(Model.Status.Equals(status))">@status</option>
+                }
+            </select>
+        </form>
+
+        <a asp-controller="Billing" asp-action="Generate" asp-route-orderId="@Model.Id" class="btn btn-primary btn-sm">
+            <i class="fa-solid fa-file-invoice-dollar"></i> Generate Bill
+        </a>
+    </div>
+</div>
+
+<div class="grid-2 fade-in-up delay-1" style="grid-template-columns: 2fr 1fr;">
+    
+    <!-- Left: Order Items List -->
+    <div class="card">
+        <div class="card-header">
+            <div>
+                <div class="card-title">Order Items</div>
+                <div class="card-subtitle">Items added to this order</div>
+            </div>
+            <div style="font-size:1.4rem;font-weight:700;color:var(--primary);">
+                ₹@orderTotal.ToString("0.00")
+            </div>
+        </div>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th style="text-align:center;">Qty</th>
+                        <th style="text-align:right;">Price</th>
+                        <th style="text-align:right;">Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.OrderItems.Any())
+                    {
+                        <tr>
+                            <td colspan="4" style="text-align:center;padding:32px;color:var(--text-muted);">
+                                No items added yet. Add items from the panel.
+                            </td>
+                        </tr>
+                    }
+                    @foreach (var item in Model.OrderItems)
+                    {
+                        <tr>
+                            <td>
+                                <div class="fw-600">@item.MenuItem?.Name</div>
+                                <div class="text-sm text-muted">@item.MenuItem?.Category?.Name</div>
+                            </td>
+                            <td style="text-align:center;"><span class="badge badge-muted">@item.Quantity</span></td>
+                            <td style="text-align:right;">₹@item.UnitPrice.ToString("0.00")</td>
+                            <td style="text-align:right;" class="fw-600">₹@((item.UnitPrice * item.Quantity).ToString("0.00"))</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Right: Add Item Form -->
+    <div class="card" style="background:var(--bg-card2);">
+        <div class="card-header" style="border-bottom-color:var(--bg-card);">
+            <div>
+                <div class="card-title">Add Item</div>
+                <div class="card-subtitle">Select menu item to add</div>
+            </div>
+        </div>
+
+        <form asp-action="AddItem" method="post">
+            <input type="hidden" name="orderId" value="@Model.Id" />
+
+            <div class="form-group">
+                <label class="form-label">Menu Item</label>
+                <select name="menuItemId" class="form-control" asp-items="ViewBag.MenuItems" required>
+                    <option value="">-- Choose Item --</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Quantity</label>
+                <div class="input-group">
+                    <span class="input-group-icon"><i class="fa-solid fa-hashtag"></i></span>
+                    <input type="number" name="quantity" class="form-control" value="1" min="1" max="50" required />
+                </div>
+            </div>
+            
+            <div class="auth-divider" style="background:var(--bg-card);"></div>
+
+            <button type="submit" class="btn btn-primary btn-block">
+                <i class="fa-solid fa-plus"></i> Add to Order
+            </button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+    <script>
+        // SignalR setup to alert kitchen
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/kitchenHub")
+            .build();
+
+        connection.start().catch(function (err) {
+            return console.error(err.toString());
+        });
+    </script>
+}
