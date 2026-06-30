@@ -1,8 +1,238 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+@{
+    ViewData["Title"] = "Dashboard";
+    ViewData["ActivePage"] = "Dashboard";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="breadcrumb">
+    <i class="fa-solid fa-house" style="font-size:0.7rem;"></i>
+    <span>Dashboard</span>
 </div>
+
+<div class="page-header fade-in-up">
+    <div class="page-header-left">
+        <h1>Good @(DateTime.Now.Hour < 12 ? "Morning" : DateTime.Now.Hour < 17 ? "Afternoon" : "Evening") ☕</h1>
+        <p>Here's what's happening at your cafe today — @DateTime.Now.ToString("dddd, MMMM d, yyyy")</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="/Order/Create" class="btn btn-outline btn-sm">
+            <i class="fa-solid fa-plus"></i> New Order
+        </a>
+        <a href="/Billing" class="btn btn-primary btn-sm">
+            <i class="fa-solid fa-file-invoice-dollar"></i> Billing
+        </a>
+    </div>
+</div>
+
+<!-- STAT CARDS -->
+<div class="grid-4 mb-6 fade-in-up delay-1">
+
+    <div class="stat-card accent-gold">
+        <div class="stat-icon"><i class="fa-solid fa-coins"></i></div>
+        <div class="stat-body">
+            <div class="stat-value">₹0</div>
+            <div class="stat-label">Today's Revenue</div>
+            <span class="stat-change up mt-1">↑ 0% vs yesterday</span>
+        </div>
+    </div>
+
+    <div class="stat-card accent-green">
+        <div class="stat-icon"><i class="fa-solid fa-receipt"></i></div>
+        <div class="stat-body">
+            <div class="stat-value">0</div>
+            <div class="stat-label">Active Orders</div>
+            <span class="stat-change up mt-1">↑ Live</span>
+        </div>
+    </div>
+
+    <div class="stat-card accent-blue">
+        <div class="stat-icon"><i class="fa-solid fa-chair"></i></div>
+        <div class="stat-body">
+            <div class="stat-value">0</div>
+            <div class="stat-label">Tables Occupied</div>
+            <span class="stat-change muted mt-1" style="color:var(--text-muted);background:transparent;">of 0 total</span>
+        </div>
+    </div>
+
+    <div class="stat-card accent-red">
+        <div class="stat-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+        <div class="stat-body">
+            <div class="stat-value">0</div>
+            <div class="stat-label">Low Stock Items</div>
+            <span class="stat-change down mt-1">Needs attention</span>
+        </div>
+    </div>
+
+</div>
+
+<!-- MAIN GRID -->
+<div class="grid-2 mb-6 fade-in-up delay-2">
+
+    <!-- Recent Orders -->
+    <div class="card">
+        <div class="card-header">
+            <div>
+                <div class="card-title">Recent Orders</div>
+                <div class="card-subtitle">Latest activity today</div>
+            </div>
+            <a href="/Order" class="btn btn-outline btn-sm">View All</a>
+        </div>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Table</th>
+                        <th>Items</th>
+                        <th>Status</th>
+                        <th>Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="5" style="text-align:center;padding:32px;color:var(--text-muted);">
+                            <i class="fa-regular fa-clock" style="font-size:1.8rem;display:block;margin-bottom:8px;opacity:0.4;"></i>
+                            No orders yet today
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Table Status -->
+    <div class="card">
+        <div class="card-header">
+            <div>
+                <div class="card-title">Table Status</div>
+                <div class="card-subtitle">Current seating overview</div>
+            </div>
+            <a href="/Table" class="btn btn-outline btn-sm">Manage</a>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;" id="tableGrid">
+            <!-- Placeholder tables -->
+            @for (int i = 1; i <= 6; i++)
+            {
+            <div style="background:var(--bg-card2);border:1px solid var(--border);border-radius:12px;padding:14px;text-align:center;transition:var(--transition);">
+                <div style="font-size:1.4rem;margin-bottom:6px;">🪑</div>
+                <div style="font-size:0.78rem;font-weight:600;color:var(--text-secondary);">T-@i</div>
+                <div class="table-status d-flex align-center gap-2" style="justify-content:center;margin-top:4px;">
+                    <span class="status-dot free"></span>
+                    <span style="font-size:0.7rem;color:var(--success);">Free</span>
+                </div>
+            </div>
+            }
+        </div>
+
+        <div style="display:flex;gap:16px;margin-top:16px;padding-top:14px;border-top:1px solid var(--border);">
+            <span class="d-flex align-center gap-2 text-sm">
+                <span class="status-dot free"></span>
+                <span style="color:var(--text-muted);">Free</span>
+            </span>
+            <span class="d-flex align-center gap-2 text-sm">
+                <span class="status-dot occupied"></span>
+                <span style="color:var(--text-muted);">Occupied</span>
+            </span>
+            <span class="d-flex align-center gap-2 text-sm">
+                <span class="status-dot reserved"></span>
+                <span style="color:var(--text-muted);">Reserved</span>
+            </span>
+        </div>
+    </div>
+
+</div>
+
+<!-- BOTTOM GRID -->
+<div class="grid-2 fade-in-up delay-3">
+
+    <!-- Popular Items -->
+    <div class="card">
+        <div class="card-header">
+            <div>
+                <div class="card-title">Popular Menu Items</div>
+                <div class="card-subtitle">Top ordered this week</div>
+            </div>
+            <a href="/Menu" class="btn btn-outline btn-sm">Menu</a>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:12px;">
+            @{
+                var items = new[] {
+                    new { Name = "Espresso", Orders = 0, Icon = "☕", Pct = 0 },
+                    new { Name = "Cappuccino", Orders = 0, Icon = "🥛", Pct = 0 },
+                    new { Name = "Croissant", Orders = 0, Icon = "🥐", Pct = 0 },
+                    new { Name = "Latte", Orders = 0, Icon = "🍵", Pct = 0 },
+                };
+            }
+            @foreach (var item in items)
+            {
+            <div class="d-flex align-center gap-3">
+                <div style="font-size:1.3rem;width:36px;text-align:center;">@item.Icon</div>
+                <div style="flex:1;">
+                    <div style="font-size:0.85rem;font-weight:500;color:var(--text-primary);margin-bottom:5px;">@item.Name</div>
+                    <div style="height:5px;background:var(--bg-card2);border-radius:3px;overflow:hidden;">
+                        <div style="height:100%;width:@(item.Pct)%;background:linear-gradient(90deg,var(--primary),var(--primary-light));border-radius:3px;"></div>
+                    </div>
+                </div>
+                <div style="font-size:0.78rem;color:var(--text-muted);width:40px;text-align:right;">@item.Orders</div>
+            </div>
+            }
+
+            <div style="text-align:center;padding:12px 0;color:var(--text-muted);font-size:0.82rem;">
+                Start taking orders to see analytics
+            </div>
+        </div>
+    </div>
+
+    <!-- Activity Feed -->
+    <div class="card">
+        <div class="card-header">
+            <div>
+                <div class="card-title">Activity Feed</div>
+                <div class="card-subtitle">Recent system events</div>
+            </div>
+            <span class="badge badge-success" style="animation:pulse-glow 2s infinite;">● Live</span>
+        </div>
+
+        <div>
+            <div class="activity-item">
+                <div class="activity-dot" style="background:rgba(200,149,58,0.12);color:var(--primary);">🚀</div>
+                <div class="activity-body">
+                    <div class="activity-text"><strong>System initialized</strong> — Database seeded & ready</div>
+                    <div class="activity-time"><i class="fa-regular fa-clock"></i> Just now</div>
+                </div>
+            </div>
+            <div class="activity-item">
+                <div class="activity-dot" style="background:rgba(76,175,130,0.12);color:var(--success);">👤</div>
+                <div class="activity-body">
+                    <div class="activity-text"><strong>Admin account</strong> created — admin@cafe.com</div>
+                    <div class="activity-time"><i class="fa-regular fa-clock"></i> @DateTime.Now.ToString("hh:mm tt")</div>
+                </div>
+            </div>
+            <div class="activity-item">
+                <div class="activity-dot" style="background:rgba(91,155,213,0.12);color:var(--info);">📦</div>
+                <div class="activity-body">
+                    <div class="activity-text">Waiting for <strong>inventory items</strong> to be added</div>
+                    <div class="activity-time"><i class="fa-regular fa-clock"></i> Pending</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+<script>
+    // Animate stat values on load
+    document.querySelectorAll('.stat-value').forEach(el => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(10px)';
+        setTimeout(() => {
+            el.style.transition = 'all 0.5s ease';
+            el.style.opacity = '1';
+            el.style.transform = 'translateY(0)';
+        }, 300);
+    });
+</script>
+}
