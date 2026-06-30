@@ -1,0 +1,112 @@
+@model IEnumerable<CafeManagementSystem.Models.MenuItem>
+@{
+    ViewData["Title"] = "Menu Items";
+    ViewData["ActivePage"] = "Menu";
+}
+
+<div class="breadcrumb">
+    <i class="fa-solid fa-utensils" style="font-size:0.7rem;"></i>
+    <span>Menu Items</span>
+</div>
+
+<div class="page-header fade-in-up">
+    <div class="page-header-left">
+        <h1>Manage Menu</h1>
+        <p>View, add, and update items on your cafe menu.</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-action="Create" class="btn btn-primary btn-sm">
+            <i class="fa-solid fa-plus"></i> Add Item
+        </a>
+    </div>
+</div>
+
+<div class="card fade-in-up delay-1">
+    <div class="card-header">
+        <div>
+            <div class="card-title">All Menu Items</div>
+            <div class="card-subtitle">Showing @Model.Count() items</div>
+        </div>
+        <div class="topbar-search" style="width:200px; margin:0;">
+            <i class="fa-solid fa-magnifying-glass search-icon"></i>
+            <input type="text" placeholder="Search menu..." id="menuSearch" />
+        </div>
+    </div>
+
+    <div class="table-wrapper">
+        <table id="menuTable">
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th>Category</th>
+                    <th>Price</th>
+                    <th>Status</th>
+                    <th style="text-align:right;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="5" style="text-align:center;padding:32px;color:var(--text-muted);">
+                            <i class="fa-solid fa-mug-hot" style="font-size:1.8rem;display:block;margin-bottom:8px;opacity:0.4;"></i>
+                            No menu items found. Get started by adding your first item!
+                        </td>
+                    </tr>
+                }
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            <div class="d-flex align-center gap-3">
+                                <div style="width:40px;height:40px;border-radius:var(--radius-sm);background:var(--bg-card2);display:flex;align-items:center;justify-content:center;font-size:1.2rem;">
+                                    @(string.IsNullOrEmpty(item.ImageUrl) ? "☕" : $"<img src='{item.ImageUrl}' style='width:100%;height:100%;object-fit:cover;border-radius:inherit;'/>")
+                                </div>
+                                <div>
+                                    <div class="fw-600">@item.Name</div>
+                                    <div class="text-sm text-muted">@item.Description</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge badge-muted">@(item.Category?.Name ?? "Uncategorized")</span>
+                        </td>
+                        <td class="fw-600 text-primary-c">₹@item.Price.ToString("0.00")</td>
+                        <td>
+                            @if (item.IsAvailable)
+                            {
+                                <span class="badge badge-success">Available</span>
+                            }
+                            else
+                            {
+                                <span class="badge badge-danger">Out of Stock</span>
+                            }
+                        </td>
+                        <td style="text-align:right;">
+                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline btn-sm" style="padding:6px 10px;">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    // Simple client-side search
+    document.getElementById('menuSearch').addEventListener('keyup', function() {
+        let filter = this.value.toLowerCase();
+        let rows = document.querySelectorAll('#menuTable tbody tr');
+        
+        rows.forEach(row => {
+            if (row.cells.length > 1) { // Skip empty state row
+                let text = row.innerText.toLowerCase();
+                row.style.display = text.includes(filter) ? '' : 'none';
+            }
+        });
+    });
+</script>
+}
