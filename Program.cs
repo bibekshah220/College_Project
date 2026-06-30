@@ -8,6 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services
 builder.Services.AddControllersWithViews();
+builder.Services.AddRazorPages();
 
 // EF Core + PostgreSQL
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -27,6 +28,12 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 builder.Services.AddSignalR();
 
 var app = builder.Build();
+
+// Seed roles and admin user
+using (var scope = app.Services.CreateScope())
+{
+    await DbSeeder.SeedAsync(scope.ServiceProvider);
+}
 
 if (!app.Environment.IsDevelopment())
 {
