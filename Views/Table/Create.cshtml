@@ -1,0 +1,64 @@
+@model CafeManagementSystem.Models.TableInfo
+@{
+    ViewData["Title"] = "Add Table";
+    ViewData["ActivePage"] = "Table";
+}
+
+<div class="breadcrumb">
+    <a asp-action="Index"><i class="fa-solid fa-chair"></i> Tables</a>
+    <span>/</span>
+    <span>Add Table</span>
+</div>
+
+<div class="page-header fade-in-up">
+    <div class="page-header-left">
+        <h1>Add New Table</h1>
+        <p>Map a new physical table to your cafe floor plan.</p>
+    </div>
+</div>
+
+<div class="grid-2 fade-in-up delay-1">
+    <div class="card">
+        <form asp-action="Create" method="post">
+            <div asp-validation-summary="ModelOnly" class="field-validation-error"></div>
+
+            <div class="form-group">
+                <label asp-for="TableNumber" class="form-label">Table Number/Identifier</label>
+                <div class="input-group">
+                    <span class="input-group-icon">#</span>
+                    <input asp-for="TableNumber" class="form-control" placeholder="e.g. 1, 2, A1, Balcony-1" />
+                </div>
+                <span asp-validation-for="TableNumber" class="field-validation-error"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Capacity" class="form-label">Seating Capacity</label>
+                <div class="input-group">
+                    <span class="input-group-icon"><i class="fa-solid fa-users"></i></span>
+                    <input asp-for="Capacity" class="form-control" placeholder="2, 4, 6..." type="number" min="1" max="20" />
+                </div>
+                <span asp-validation-for="Capacity" class="field-validation-error"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Status" class="form-label">Initial Status</label>
+                <select asp-for="Status" class="form-control" asp-items="Html.GetEnumSelectList<CafeManagementSystem.Models.TableStatus>()">
+                </select>
+                <span asp-validation-for="Status" class="field-validation-error"></span>
+            </div>
+
+            <div class="auth-divider"></div>
+
+            <div class="d-flex gap-3">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fa-solid fa-check"></i> Save Table
+                </button>
+                <a asp-action="Index" class="btn btn-outline">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
