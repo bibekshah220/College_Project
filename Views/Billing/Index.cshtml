@@ -1,0 +1,103 @@
+@model IEnumerable<CafeManagementSystem.Models.Bill>
+@{
+    ViewData["Title"] = "Billing History";
+    ViewData["ActivePage"] = "Billing";
+}
+
+<div class="breadcrumb">
+    <i class="fa-solid fa-file-invoice-dollar" style="font-size:0.7rem;"></i>
+    <span>Billing</span>
+</div>
+
+<div class="page-header fade-in-up">
+    <div class="page-header-left">
+        <h1>Billing & Receipts</h1>
+        <p>View all generated bills and track payment statuses.</p>
+    </div>
+</div>
+
+<!-- Billing Overview Grid -->
+<div class="grid-3 mb-6 fade-in-up delay-1">
+    <div class="stat-card">
+        <div class="stat-icon" style="background:rgba(200,149,58,0.12); color:var(--primary);"><i class="fa-solid fa-receipt"></i></div>
+        <div class="stat-body">
+            <div class="stat-value">@Model.Count()</div>
+            <div class="stat-label">Total Bills</div>
+        </div>
+    </div>
+    <div class="stat-card accent-green">
+        <div class="stat-icon"><i class="fa-solid fa-indian-rupee-sign"></i></div>
+        <div class="stat-body">
+            <div class="stat-value">₹@Model.Where(b => b.PaymentStatus == CafeManagementSystem.Models.PaymentStatus.Paid).Sum(b => b.TotalAmount).ToString("0.00")</div>
+            <div class="stat-label">Total Revenue</div>
+        </div>
+    </div>
+    <div class="stat-card accent-red">
+        <div class="stat-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+        <div class="stat-body">
+            <div class="stat-value">@Model.Count(b => b.PaymentStatus == CafeManagementSystem.Models.PaymentStatus.Unpaid)</div>
+            <div class="stat-label">Unpaid Bills</div>
+        </div>
+    </div>
+</div>
+
+<div class="card fade-in-up delay-2">
+    <div class="card-header">
+        <div>
+            <div class="card-title">Recent Bills</div>
+            <div class="card-subtitle">All billing history</div>
+        </div>
+    </div>
+
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>Bill #</th>
+                    <th>Order #</th>
+                    <th>Table</th>
+                    <th>Date</th>
+                    <th style="text-align:right;">Amount</th>
+                    <th style="text-align:center;">Status</th>
+                    <th style="text-align:right;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="7" style="text-align:center;padding:32px;color:var(--text-muted);">
+                            <i class="fa-solid fa-file-invoice" style="font-size:1.8rem;display:block;margin-bottom:8px;opacity:0.4;"></i>
+                            No bills generated yet. Go to Orders to generate a bill.
+                        </td>
+                    </tr>
+                }
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td class="fw-600">B-@item.Id.ToString("D4")</td>
+                        <td>#@item.OrderId</td>
+                        <td>Table @(item.Order?.TableInfo?.TableNumber ?? "?")</td>
+                        <td class="text-muted text-sm">@item.GeneratedAt.ToLocalTime().ToString("MMM dd, yyyy hh:mm tt")</td>
+                        <td style="text-align:right;" class="fw-600">₹@item.TotalAmount.ToString("0.00")</td>
+                        <td style="text-align:center;">
+                            @if(item.PaymentStatus == CafeManagementSystem.Models.PaymentStatus.Paid)
+                            {
+                                <span class="badge badge-success"><i class="fa-solid fa-check"></i> Paid</span>
+                            }
+                            else
+                            {
+                                <span class="badge badge-danger">Unpaid</span>
+                            }
+                        </td>
+                        <td style="text-align:right;">
+                            <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline btn-sm">
+                                View Receipt
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
