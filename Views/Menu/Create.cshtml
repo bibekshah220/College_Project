@@ -19,7 +19,7 @@
 
 <div class="grid-2 fade-in-up delay-1">
     <div class="card">
-        <form asp-action="Create" method="post">
+        <form asp-action="Create" method="post" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="field-validation-error"></div>
 
             <div class="form-group">
@@ -52,6 +52,11 @@
             </div>
 
             <div class="form-group">
+                <label class="form-label">Menu Image (Optional)</label>
+                <input type="file" name="ImageFile" class="form-control" accept="image/*" />
+            </div>
+
+            <div class="form-group" style="margin-top:16px;">
                 <label class="form-check">
                     <input asp-for="IsAvailable" type="checkbox" checked />
                     <span class="form-check-label">Available for ordering</span>
@@ -71,8 +76,8 @@
     
     <div class="card" style="background:var(--bg-card2);display:flex;align-items:center;justify-content:center;flex-direction:column;border-style:dashed;">
         <div style="font-size:3rem;margin-bottom:16px;opacity:0.5;">📸</div>
-        <div class="text-muted fw-600">Image upload coming soon</div>
-        <p class="text-sm text-muted mt-2 text-center" style="max-width:250px;">You can link images via URL for now, or just use the default emoji icon.</p>
+        <div class="text-muted fw-600">Image Upload Enabled</div>
+        <p class="text-sm text-muted mt-2 text-center" style="max-width:250px;">Choose a file from the form. Supported formats: JPG, PNG, WEBP.</p>
     </div>
 </div>
 
