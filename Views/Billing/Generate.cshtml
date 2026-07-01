@@ -1,0 +1,110 @@
+@model CafeManagementSystem.Models.Bill
+@{
+    ViewData["Title"] = "Generate Bill";
+    ViewData["ActivePage"] = "Billing";
+}
+
+<div class="breadcrumb">
+    <a asp-action="Index"><i class="fa-solid fa-file-invoice-dollar"></i> Billing</a>
+    <span>/</span>
+    <span>Generate Bill</span>
+</div>
+
+<div class="page-header fade-in-up">
+    <div class="page-header-left">
+        <h1>Generate Bill</h1>
+        <p>Confirm details before finalizing the receipt.</p>
+    </div>
+</div>
+
+<div class="grid-2 fade-in-up delay-1" style="grid-template-columns: 1fr 1fr;">
+    
+    <!-- Left: Order Summary -->
+    <div class="card">
+        <div class="card-header">
+            <div>
+                <div class="card-title">Order Summary</div>
+                <div class="card-subtitle">Order #@Model.OrderId on Table @(Model.Order?.TableInfo?.TableNumber)</div>
+            </div>
+        </div>
+
+        <div class="table-wrapper mb-4">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th style="text-align:center;">Qty</th>
+                        <th style="text-align:right;">Price</th>
+                        <th style="text-align:right;">Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Order!.OrderItems)
+                    {
+                        <tr>
+                            <td>
+                                <div class="fw-600">@item.MenuItem?.Name</div>
+                            </td>
+                            <td style="text-align:center;"><span class="badge badge-muted">@item.Quantity</span></td>
+                            <td style="text-align:right;">₹@item.UnitPrice.ToString("0.00")</td>
+                            <td style="text-align:right;" class="fw-600">₹@((item.UnitPrice * item.Quantity).ToString("0.00"))</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Right: Bill Calculation -->
+    <div class="card" style="background:var(--bg-card2);">
+        <form asp-action="Generate" method="post">
+            <input type="hidden" asp-for="OrderId" />
+            <input type="hidden" asp-for="SubTotal" />
+            <input type="hidden" asp-for="Tax" />
+
+            <div class="card-header" style="border-bottom-color:var(--bg-card);">
+                <div class="card-title">Bill Calculation</div>
+            </div>
+
+            <div style="padding:20px 0;">
+                <div class="d-flex" style="justify-content:space-between;margin-bottom:12px;font-size:1.1rem;">
+                    <span class="text-muted">Subtotal</span>
+                    <span class="fw-600">₹@Model.SubTotal.ToString("0.00")</span>
+                </div>
+                <div class="d-flex" style="justify-content:space-between;margin-bottom:12px;font-size:1.1rem;">
+                    <span class="text-muted">Tax (5%)</span>
+                    <span class="fw-600">₹@Model.Tax.ToString("0.00")</span>
+                </div>
+
+                <div class="form-group" style="margin-top:20px;">
+                    <label asp-for="Discount" class="form-label">Discount Amount (₹)</label>
+                    <div class="input-group">
+                        <span class="input-group-icon">₹</span>
+                        <input asp-for="Discount" class="form-control" type="number" step="0.01" min="0" value="0" />
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-top:20px;">
+                    <label asp-for="PaymentStatus" class="form-label">Payment Status</label>
+                    <select asp-for="PaymentStatus" class="form-control" asp-items="Html.GetEnumSelectList<CafeManagementSystem.Models.PaymentStatus>()"></select>
+                    <p class="text-sm text-muted mt-2">Marking as "Paid" will automatically free up Table @(Model.Order?.TableInfo?.TableNumber).</p>
+                </div>
+            </div>
+            
+            <div class="auth-divider" style="background:var(--bg-card);margin: 20px 0;"></div>
+
+            <div class="d-flex" style="justify-content:space-between;align-items:center;margin-bottom:24px;">
+                <span style="font-size:1.2rem;font-weight:600;">Total Payable</span>
+                <span style="font-size:2rem;font-weight:700;color:var(--primary);">₹@Model.TotalAmount.ToString("0.00")</span>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block" style="padding:12px;font-size:1.1rem;">
+                <i class="fa-solid fa-check"></i> Finalize Bill
+            </button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
