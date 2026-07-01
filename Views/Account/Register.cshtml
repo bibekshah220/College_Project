@@ -5,45 +5,110 @@
     Layout = "_Layout";
 }
 
-<div class="container mt-5" style="max-width: 500px; padding-top: 50px;">
-    <div class="card shadow-sm border-0" style="background: var(--bg-card);">
-        <div class="card-body p-5">
-            <h2 class="mb-4 text-center" style="color: var(--text-primary); font-weight: 700;">Register</h2>
+<div class="auth-page">
+    <div class="auth-bg"></div>
 
-            <form asp-action="Register" method="post">
-                <div asp-validation-summary="All" class="text-danger mb-3" style="font-size: 0.85rem;"></div>
+    <div class="auth-grid fade-in-up">
+        <!-- LEFT: Branding -->
+        <div class="auth-left">
+            <div class="auth-logo">
+                <div class="auth-logo-icon">☕</div>
+                <span class="auth-logo-name">Brew &amp; Manage</span>
+            </div>
 
-                <div class="form-group mb-3">
-                    <label asp-for="FullName" class="form-label text-muted"></label>
-                    <input asp-for="FullName" class="form-control" style="background: var(--bg-card2); border-color: var(--border); color: var(--text-primary);" />
-                    <span asp-validation-for="FullName" class="text-danger" style="font-size: 0.8rem;"></span>
+            <h1 class="auth-heading">
+                Join our<br/>
+                <span>Cafe Team</span>
+            </h1>
+            <p class="auth-desc">
+                Create an account to start managing orders, inventory, and serving customers better.
+            </p>
+
+            <div class="auth-features">
+                <div class="auth-feature">
+                    <div class="auth-feature-icon">🤝</div>
+                    Collaborate with the team in real-time
                 </div>
-
-                <div class="form-group mb-3">
-                    <label asp-for="Email" class="form-label text-muted"></label>
-                    <input asp-for="Email" class="form-control" style="background: var(--bg-card2); border-color: var(--border); color: var(--text-primary);" />
-                    <span asp-validation-for="Email" class="text-danger" style="font-size: 0.8rem;"></span>
+                <div class="auth-feature">
+                    <div class="auth-feature-icon">🚀</div>
+                    Fast and efficient order processing
                 </div>
-
-                <div class="form-group mb-3">
-                    <label asp-for="Password" class="form-label text-muted"></label>
-                    <input asp-for="Password" class="form-control" style="background: var(--bg-card2); border-color: var(--border); color: var(--text-primary);" />
-                    <span asp-validation-for="Password" class="text-danger" style="font-size: 0.8rem;"></span>
+                <div class="auth-feature">
+                    <div class="auth-feature-icon">🔐</div>
+                    Secure role-based access control
                 </div>
+            </div>
+        </div>
 
-                <div class="form-group mb-4">
-                    <label asp-for="ConfirmPassword" class="form-label text-muted"></label>
-                    <input asp-for="ConfirmPassword" class="form-control" style="background: var(--bg-card2); border-color: var(--border); color: var(--text-primary);" />
-                    <span asp-validation-for="ConfirmPassword" class="text-danger" style="font-size: 0.8rem;"></span>
-                </div>
+        <!-- RIGHT: Form -->
+        <div class="auth-right">
+            <h2 class="auth-form-title">Create Account</h2>
+            <p class="auth-form-sub">Sign up to get access to the dashboard</p>
 
-                <div class="d-grid gap-3">
-                    <button type="submit" class="btn btn-primary py-2" style="font-weight: 600;">Register</button>
-                    <div class="text-center">
-                        <a asp-action="Login" class="text-decoration-none" style="color: var(--primary); font-size: 0.9rem;">Already have an account? Login</a>
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div asp-validation-summary="All" class="badge badge-danger" style="display:block;padding:10px 14px;border-radius:8px;margin-bottom:16px;"></div>
+            }
+
+            <form asp-action="Register" method="post" id="registerForm">
+                
+                <div class="form-group">
+                    <label class="form-label">Full Name</label>
+                    <div class="input-group">
+                        <span class="input-group-icon"><i class="fa-regular fa-user"></i></span>
+                        <input asp-for="FullName" class="form-control" placeholder="John Doe" />
                     </div>
+                    <span asp-validation-for="FullName" class="field-validation-error"></span>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Email Address</label>
+                    <div class="input-group">
+                        <span class="input-group-icon"><i class="fa-regular fa-envelope"></i></span>
+                        <input asp-for="Email" class="form-control" placeholder="staff@cafe.com" autocomplete="email" />
+                    </div>
+                    <span asp-validation-for="Email" class="field-validation-error"></span>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <div class="input-group">
+                        <span class="input-group-icon"><i class="fa-solid fa-lock"></i></span>
+                        <input asp-for="Password" class="form-control" placeholder="••••••••" autocomplete="new-password" />
+                    </div>
+                    <span asp-validation-for="Password" class="field-validation-error"></span>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Confirm Password</label>
+                    <div class="input-group">
+                        <span class="input-group-icon"><i class="fa-solid fa-lock"></i></span>
+                        <input asp-for="ConfirmPassword" class="form-control" placeholder="••••••••" autocomplete="new-password" />
+                    </div>
+                    <span asp-validation-for="ConfirmPassword" class="field-validation-error"></span>
+                </div>
+
+                <button type="submit" class="auth-submit" id="submitBtn">
+                    <i class="fa-solid fa-user-plus"></i>
+                    Register
+                </button>
+                
+                <div style="text-align:center;margin-top:16px;">
+                    <a asp-action="Login" style="font-size:0.85rem;color:var(--text-secondary);text-decoration:none;">
+                        Already have an account? <span style="color:var(--primary);font-weight:600;">Sign in</span>
+                    </a>
                 </div>
             </form>
         </div>
     </div>
 </div>
+
+@section Scripts {
+<script>
+    document.getElementById('registerForm').addEventListener('submit', function () {
+        const btn = document.getElementById('submitBtn');
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Creating...';
+        btn.disabled = true;
+    });
+</script>
+}
